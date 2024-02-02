@@ -75,6 +75,11 @@ data LintSettings = LintSettings
   , prettyprint_spaceAfterComma :: !Bool
   , prettyprint_semicolons :: !Bool
   , prettyprint_cStyle :: !Bool
+  , prettyprint_cStyleComments :: !Bool
+  , prettyprint_cStyleNotLike :: !Bool
+  , prettyprint_cStyleAnd :: !Bool
+  , prettyprint_cStyleOr :: !Bool
+  , prettyprint_cStyleNot :: !Bool
   , prettyprint_removeRedundantParens :: !Bool
   , prettyprint_minimizeParens :: !Bool
   , prettyprint_assumeOperatorAssociativity :: !Bool
@@ -123,6 +128,11 @@ defaultLintSettings =
     , prettyprint_spaceAfterComma = True
     , prettyprint_semicolons = False
     , prettyprint_cStyle = False
+    , prettyprint_cStyleComments = False
+    , prettyprint_cStyleNotLike = False
+    , prettyprint_cStyleAnd = False
+    , prettyprint_cStyleOr = False
+    , prettyprint_cStyleNot = False
     , prettyprint_removeRedundantParens = True
     , prettyprint_minimizeParens = False
     , prettyprint_assumeOperatorAssociativity = True
@@ -185,6 +195,11 @@ instance FromJSON LintSettings where
       <*> v .:? "prettyprint_spaceAfterComma" .!= prettyprint_spaceAfterComma defaultLintSettings
       <*> v .:? "prettyprint_semicolons" .!= prettyprint_semicolons defaultLintSettings
       <*> v .:? "prettyprint_cStyle" .!= prettyprint_cStyle defaultLintSettings
+      <*> v .:? "prettyprint_cStyleComments" .!= prettyprint_cStyleComments defaultLintSettings
+      <*> v .:? "prettyprint_cStyleNotLike" .!= prettyprint_cStyleNotLike defaultLintSettings
+      <*> v .:? "prettyprint_cStyleAnd" .!= prettyprint_cStyleAnd defaultLintSettings
+      <*> v .:? "prettyprint_cStyleOr" .!= prettyprint_cStyleOr defaultLintSettings
+      <*> v .:? "prettyprint_cStyleNot" .!= prettyprint_cStyleNot defaultLintSettings  
       <*> v .:? "prettyprint_removeRedundantParens" .!= prettyprint_removeRedundantParens defaultLintSettings
       <*> v .:? "prettyprint_minimizeParens" .!= prettyprint_minimizeParens defaultLintSettings
       <*> v .:? "prettyprint_assumeOperatorAssociativity" .!= prettyprint_assumeOperatorAssociativity defaultLintSettings
@@ -205,6 +220,11 @@ lint2ppSetting ls =
     , spaceAfterComma = prettyprint_spaceAfterComma ls
     , semicolons = prettyprint_semicolons ls
     , cStyle = prettyprint_cStyle ls
+    , cStyleComments = prettyprint_cStyleComments ls
+    , cStyleNotLike = prettyprint_cStyleNotLike ls
+    , cStyleAnd = prettyprint_cStyleAnd ls
+    , cStyleOr = prettyprint_cStyleOr ls
+    , cStyleNot = prettyprint_cStyleNot ls
     , removeRedundantParens = prettyprint_removeRedundantParens ls
     , minimizeParens = prettyprint_minimizeParens ls
     , assumeOperatorAssociativity = prettyprint_assumeOperatorAssociativity ls
@@ -249,6 +269,11 @@ instance ToJSON LintSettings where
       , "prettyprint_spaceAfterComma" .= prettyprint_spaceAfterComma ls
       , "prettyprint_semicolons" .= prettyprint_semicolons ls
       , "prettyprint_cStyle" .= prettyprint_cStyle ls
+      , "prettyprint_cStyleComments" .= prettyprint_cStyleComments ls
+      , "prettyprint_cStyleNotLike" .= prettyprint_cStyleNotLike ls
+      , "prettyprint_cStyleAnd" .= prettyprint_cStyleAnd ls
+      , "prettyprint_cStyleOr" .= prettyprint_cStyleOr ls
+      , "prettyprint_cStyleNot" .= prettyprint_cStyleNot ls
       , "prettyprint_removeRedundantParens" .= prettyprint_removeRedundantParens ls
       , "prettyprint_minimizeParens" .= prettyprint_minimizeParens ls
       , "prettyprint_assumeOperatorAssociativity" .= prettyprint_assumeOperatorAssociativity ls

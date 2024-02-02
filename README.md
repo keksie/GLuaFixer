@@ -76,6 +76,11 @@ Example `glualint.json` with the default options:
     "prettyprint_spaceAfterComma": true,
     "prettyprint_semicolons": false,
     "prettyprint_cStyle": false,
+    "prettyprint_cStyleComments": false,
+    "prettyprint_cStyleNotLike": false,
+    "prettyprint_cStyleAnd": false,
+    "prettyprint_cStyleOr": false,
+    "prettyPrint_cStyleNot": false,
     "prettyprint_removeRedundantParens": true,
     "prettyprint_minimizeParens": false,
     "prettyprint_assumeOperatorAssociativity": true,
@@ -133,6 +138,11 @@ Option | Description
 `prettyprint_spaceAfterLabel` | Put a space after a `::label::` statement
 `prettyprint_semicolons` | Clutter the script with semicolons after every damn statement
 `prettyprint_cStyle` | Use C style operators and comments everywhere
+`prettyprint_cStyleComments` | Use C style comments (`//` instead of `--`)
+`prettyprint_cStyleNotLike` | Use C style `not like` (`!=` instead of `~=`)
+`prettyprint_cStyleAnd` | Use C style `and` (`&&` instead of `and`)
+`prettyprint_cStyleOr` | Use C style `or` (`||` instead of `or`)
+`prettyprint_cStyleNot` | Use C style `not` (`!` instead of `not`)
 `prettyprint_indentation` | What to use for indentation. Any string is valid, but some amount of spaces or `"\t"` is recommended
 `prettyprint_spaceBeforeComma` | Whether to place a space before every comma
 `prettyprint_spaceAfterComma` | Whether to place a space after every comma

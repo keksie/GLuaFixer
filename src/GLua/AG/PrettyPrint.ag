@@ -48,6 +48,11 @@ data PrettyPrintConfig = PPConfig {
     spaceAfterComma :: Bool,
     semicolons :: Bool,
     cStyle :: Bool,
+    cStyleComments :: Bool,
+    cStyleNotLike :: Bool,
+    cStyleAnd :: Bool,
+    cStyleOr :: Bool,
+    cStyleNot :: Bool,
     removeRedundantParens :: Bool,
     minimizeParens :: Bool,
     assumeOperatorAssociativity :: Bool,
@@ -66,6 +71,11 @@ defaultPPConfig = PPConfig {
     spaceAfterComma = True,
     semicolons = False,
     cStyle = False,
+    cStyleComments = False,
+    cStyleNotLike = False,
+    cStyleAnd = False,
+    cStyleOr = False,
+    cStyleNot = False,
     removeRedundantParens = True,
     assumeOperatorAssociativity = True,
     minimizeParens = False,
@@ -156,7 +166,7 @@ convertComment :: PrettyPrintConfig -> MToken -> MToken
 convertComment conf (MToken p t) = MToken p $ convert' t
     where
         convert' :: Token -> Token
-        convert' = if cStyle conf then cComment else luaComment
+        convert' = if (cStyle conf || cStyleComments conf) then cComment else luaComment
 
         luaComment :: Token -> Token
         luaComment (SlashComment s) = DashComment s
@@ -1183,17 +1193,17 @@ sem BinOp
         lhs.precedence = OperatorLevel3
         lhs.isAssociative = True
     | ANEq
-        lhs.pretty = zeroWidthText (if cStyle @lhs.ppconf then "!=" else "~=")
+        lhs.pretty = zeroWidthText (if (cStyle @lhs.ppconf || cStyleNotLike @lhs.ppconf) then "!=" else "~=")
         lhs.isMultiline = False
         lhs.precedence = OperatorLevel3
         lhs.isAssociative = True
     | AAnd
-        lhs.pretty = zeroWidthText (if cStyle @lhs.ppconf then "&&" else "and")
+        lhs.pretty = zeroWidthText (if (cStyle @lhs.ppconf || cStyleAnd @lhs.ppconf) then "&&" else "and")
         lhs.isMultiline = False
         lhs.precedence = OperatorLevel2
         lhs.isAssociative = True
     | AOr
-        lhs.pretty = zeroWidthText (if cStyle @lhs.ppconf then "||" else "or")
+        lhs.pretty = zeroWidthText (if (cStyle @lhs.ppconf || cStyleOr @lhs.ppconf) then "||" else "or")
         lhs.isMultiline = False
         lhs.precedence = OperatorLevel1
         lhs.isAssociative = True
@@ -1203,7 +1213,7 @@ sem UnOp
         lhs.pretty = zeroWidthText "-"
         lhs.isMultiline = False
     | ANot
-        lhs.pretty = zeroWidthText (if cStyle @lhs.ppconf then "!" else "not ")
+        lhs.pretty = zeroWidthText (if (cStyle @lhs.ppconf || cStyleNot @lhs.ppconf) then "!" else "not ")
         lhs.isMultiline = False
     | AHash
         lhs.pretty = zeroWidthText "#"
