@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Reimplements the LineColPos from `uu-parsinglib`, and adds some more functions related to
@@ -7,7 +6,7 @@
 module GLua.Position where
 
 import Data.Aeson
-import GHC.Generics (Generic)
+import Data.Foldable (toList)
 
 data LineColPos = LineColPos {lcpLine :: !Int, lcpColumn :: !Int, lcpPos :: !Int}
   deriving (Eq, Show)
@@ -20,32 +19,35 @@ instance Ord LineColPos where
 
 instance ToJSON LineColPos where
   -- this generates a Value
-  toJSON (LineColPos line col p) =
-    object ["line" .= line, "column" .= col, "pos" .= p]
+  toJSON (LineColPos line col p) = toJSON [line, col, p]
 
 #if MIN_VERSION_aeson(0,10,0)
   -- this encodes directly to a bytestring Builder
-  toEncoding (LineColPos line col p) =
-    pairs ("line" .= line <> "column" .= col <> "pos" .= p)
+  toEncoding (LineColPos line col p) = toEncoding [line, col, p]
 #endif
 
 instance FromJSON LineColPos where
-  parseJSON = withObject "LineColPos" $ \v ->
-    LineColPos
-      <$> v .: "line"
-      <*> v .: "column"
-      <*> v .: "pos"
+  parseJSON = withArray "LineColPos" $ \array ->
+    case toList array of
+      [line, col, pos] -> LineColPos <$> parseJSON line <*> parseJSON col <*> parseJSON pos
+      _ -> fail "Expected tuple of line, column, position"
 
 data Region = Region {rgStart :: !LineColPos, rgEnd :: !LineColPos}
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show)
 
 -- Ord instance defined explicitly for clarity.
 instance Ord Region where
   compare (Region s e) (Region s' e') =
     compare s s' `mappend` compare e e'
 
-instance ToJSON Region
-instance FromJSON Region
+instance ToJSON Region where
+  toJSON (Region start end) = toJSON [toJSON start, toJSON end]
+
+instance FromJSON Region where
+  parseJSON = withArray "Region" $ \array ->
+    case toList array of
+      [start, end] -> Region <$> parseJSON start <*> parseJSON end
+      _ -> fail "Expected tuple of [[line, column, position], [line, column, position]]"
 
 -- | An empty region from position 0 to position 0.
 emptyRg :: Region
