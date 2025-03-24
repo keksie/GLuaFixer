@@ -5,6 +5,7 @@ module GLua.Lexer where
 
 import GLua.AG.Token (MToken (..), Token (..))
 
+import Control.Monad (void)
 import Data.Char (ord)
 import GLua.Position (LineColPos (..), Region (..))
 import Text.Parsec (
@@ -66,22 +67,17 @@ pIdentifierCharacter :: Parser Char
 pIdentifierCharacter = satisfy validChar
   where
     validChar :: Char -> Bool
-    validChar c =
-      cBetween c '0' '9'
-        || cBetween c 'A' 'Z'
-        || c == '_'
-        || cBetween c 'a' 'z'
-        || ord c >= 128
+    validChar c = cBetween c '0' '9' || nonDigitIdentifierCharacter c
 
 pNonDigitIdentifierCharacter :: Parser Char
-pNonDigitIdentifierCharacter = satisfy validChar
-  where
-    validChar :: Char -> Bool
-    validChar c =
-      cBetween c 'A' 'Z'
-        || c == '_'
-        || cBetween c 'a' 'z'
-        || ord c >= 128
+pNonDigitIdentifierCharacter = satisfy nonDigitIdentifierCharacter
+
+nonDigitIdentifierCharacter :: Char -> Bool
+nonDigitIdentifierCharacter c =
+  cBetween c 'A' 'Z'
+    || c == '_'
+    || cBetween c 'a' 'z'
+    || ord c >= 128
 
 cBetween :: Char -> Char -> Char -> Bool
 cBetween c left right = c >= left && c <= right
@@ -166,7 +162,7 @@ parseString =
 -- | Parse any kind of number.
 -- Except for numbers that start with a '.'. That's handled by parseDots to solve ambiguity.
 parseNumber :: Parser Token
-parseNumber = TNumber <$> ((++) <$> (pHexadecimal <|> pBinary <|> pNumber) <*> (pLLULL <|> option "" parseNumberSuffix)) <?> "Number"
+parseNumber = TNumber <$> ((++) <$> (pHexadecimal <|> pBinary <|> pNumber) <*> (pLLULL <|> option "" parseNumberSuffix)) <* afterNumber <?> "Number"
   where
     pNumber :: Parser String
     pNumber = (++) <$> many1 digit <*> option "" pDecimal
@@ -200,6 +196,10 @@ parseNumber = TNumber <$> ((++) <$> (pHexadecimal <|> pBinary <|> pNumber) <*> (
     pULL :: Parser String
     pULL = "ULL" <$ oneOf ['U', 'u'] <* pLL
 
+    --
+    afterNumber :: Parser ()
+    afterNumber = lookAhead (void (satisfy (not . nonDigitIdentifierCharacter)) <|> eof)
+
 -- Parse the suffix of a number
 parseNumberSuffix :: Parser String
 parseNumberSuffix = imaginary <|> extension
@@ -220,7 +220,7 @@ parseKeyword tok str =
         (\s -> Identifier (str ++ s)) <$> many1 pIdentifierCharacter
           <|> return tok
         <?> "Keyword "
-        ++ str
+          ++ str
     )
 
 -- | Parse just an identifier.
